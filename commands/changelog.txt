@@ -1,0 +1,18 @@
+***Version 1.0.0***
+-Folgende Commands sind jetzt verfügbar:
+    - Der Prefix für den Bot den ihr vor alle Commands setzen müsst: -
+    - help           ---> Der Bot wird dir eine Liste aller Commands ausgeben
+    - status_website ---> Der Bot gibt den Status der Holypenguin Website aus
+    - verifcation    ---> ***DM ONLY*** Startet das Verfahren zum hinzufügen eines Gameservers
+    - abmelden       ---> Meldet dich von einem Gameserver wieder ab
+    - list           ---> Gibt dir alle deine Spielserver, mit denen dein Discord-Konto verknüpft ist, aus
+    - help_game      ---> Gibt die Hilfe aller Game-Spezifischen Commands aus
+    - status_game    ---> Gibt den Status für einen Spieleserver deiner Wahl aus
+
+-Slash Commands hinzugefügt (Einfach / benutzen und es sollten dir alle Befehle Angezeigt werden)
+ Folgende Commands gibt es:
+    - /status_website             ---> Gibt den Status der Holypenguin Website aus
+    - /status                     ---> Gibt den Status eines Spieleservers aus
+    - /help (help oder help_game) ---> Gibt die Hilfe für den Robo Penguin oder für die Spieleserver aus
+
+In Zukunft wird es hier auf diesem Server auch noch eine Anleitung geben wie man sein Konto mit einem Gameserver verbindet, bis dahin verwendet bitte die Anleitung auf holypenguin.de
