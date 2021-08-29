@@ -1,7 +1,0 @@
-User identifiziert sich mit seinem GETKEY in den DMs
-->SQL abfrage um zu testen ob der GETKEY da ist und mit der abfrage wird die ID abgefragt
-User bekommt die Nachricht das er bitte noch seine GameID angeben soll
-User gibt GameID ein
-Bot trägt die ID, den GETKEY, die Discord ID und die Game2Userid in die Tabelle ein
-->Jetzt kann der User seinen Status abfragen
--->Hierfür müsssen wir noch status dateien etc anlegen

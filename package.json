@@ -1,18 +1,26 @@
 {
-  "name": "dc_bot",
-  "version": "1.0.0",
-  "description": "",
+  "name": "holypenguin_dc_bot",
+  "version": "0.0.2",
+  "description": "DER Discord Bot für das Holypenguin Netzwerk",
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Benno Rodehack",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SirBerg/holypenguin_dc_bot.git"
+  },
+  "author": "",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SirBerg/holypenguin_dc_bot/issues"
+  },
+  "homepage": "https://github.com/SirBerg/holypenguin_dc_bot#readme",
   "dependencies": {
-    "discord.js": "^12.5.3",
-    "fs": "0.0.1-security",
-    "mysql": "^2.18.1",
-    "node-nmap": "^4.0.0",
-    "nodemon": "^2.0.7"
+    "@discordjs/builders": "^0.6.0",
+    "@discordjs/rest": "^0.1.0-canary.0",
+    "colors": "^1.4.0",
+    "discord-api-types": "^0.22.0",
+    "discord.js": "^13.1.0"
   }
 }
