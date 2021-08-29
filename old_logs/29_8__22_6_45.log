@@ -1,0 +1,19 @@
+[[29.8] 22:6:45] [GENERAL Notice] Startup 
+[[29.8] 22:6:45] [GENERAL Notice] LogFile Erstellt
+[[29.8] 22:6:45] [DISCORD Notice] Client erstellt
+[[29.8] 22:6:45] [DISCORD Notice] Command Collection erstellt
+[[29.8] 22:6:45] [DISCORD Notice] Commands zur Collection Hinzugefügt
+[[29.8] 22:6:46] [DISCORD Notice] Startup Complete, der Bot ist jetzt funktionsfähig
+[[29.8] 22:6:49] [DISCORD Notice] Command Benutzt: registration
+[[29.8] 22:6:49] [SQL Notice] SQL Verbindung in Registration.js aufgebaut
+function get_current_time_ohne_blau(){
+    let hours = new Date().getHours()
+    let minutes = new Date().getMinutes()
+    let seconds = new Date().getSeconds()
+    let day = new Date().getUTCDate()
+    let months = new Date().getMonth() +1
+    let time = '[['+day+'.'+months+'] '+hours+':'+minutes+':'+seconds+'] '
+    return time
+}[DISCORD Notice] CommandFile Start: registration
+[[29.8] 22:6:49] [GENERAL Warning][DISCORD Warning] Es gab ein Problem bei der Commands ausführung: 
+ReferenceError: usr_ID is not defined

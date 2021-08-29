@@ -2,7 +2,9 @@
 const fs = require('fs');
 const { Client, Collection, Intents } = require('discord.js');
 const { token } = require('./config.json');
-
+const { JsonDB } = require("node-json-db")
+const { Config } = require("node-json-db/dist/lib/JsonDBConfig")
+var db = new JsonDB(new Config("./config.json", true, false, '/'));
 
 // Sleep Funktion
 function sleep(ms) {
@@ -68,10 +70,12 @@ async function wrapper(){
         }while(i<result.length)
         
         //erstellt das logfile
-        current_log_file_path = __dirname+ `/`+get_current_time_friendly()+'.log'
-        
+        current_log_file_path = __dirname+ `/`+get_current_time_friendly()+'.log'    
         await sleep(100)
-        
+
+        //fügt den pfad des logfiles in die config.json ein
+        db.push("/path", current_log_file_path.toString())
+
         fs.writeFile(current_log_file_path , get_current_time_ohne_blau()+general_notice_ohne+"Startup \n"+get_current_time_ohne_blau()+general_notice_ohne+"LogFile Erstellt\n", (err, result)=>{
             if(err){
                 console.log(general_error+filesystem_module_error+'Das LogFile Konnte nicht erstellt werden')
@@ -120,13 +124,12 @@ async function wrapper(){
     //handled die Commands
     client.on('interactionCreate', async interaction => {
         if (!interaction.isCommand()) return;
-       
         const { commandName } = interaction;
 
         const command = client.commands.get(interaction.commandName)
 
         if(!command) return
-        
+        console.log(interaction)
         //führt das file aus in dem der Command ist
         try {
             console.log(get_current_time()+discord_notice+'Command Benutzt: '+commandName)
