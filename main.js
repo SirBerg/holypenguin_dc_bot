@@ -129,7 +129,6 @@ async function wrapper(){
         const command = client.commands.get(interaction.commandName)
 
         if(!command) return
-        console.log(interaction)
         //führt das file aus in dem der Command ist
         try {
             console.log(get_current_time()+discord_notice+'Command Benutzt: '+commandName)
