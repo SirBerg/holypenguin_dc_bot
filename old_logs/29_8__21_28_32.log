@@ -1,9 +1,0 @@
-[[29.8] 21:28:32] [GENERAL Notice] Startup 
-[[29.8] 21:28:32] [GENERAL Notice] LogFile Erstellt
-[[29.8] 21:28:33] [DISCORD Notice] Client erstellt
-[[29.8] 21:28:33] [DISCORD Notice] Command Collection erstellt
-[[29.8] 21:28:33] [DISCORD Notice] Commands zur Collection Hinzugefügt
-[[29.8] 21:28:34] [DISCORD Notice] Startup Complete, der Bot ist jetzt funktionsfähig
-[[29.8] 21:28:38] [DISCORD Notice] Command Benutzt: registration
-[[29.8] 21:28:38] [GENERAL Warning][DISCORD Warning] Es gab ein Problem bei der Commands ausführung: 
-TypeError: interaction.getString is not a function

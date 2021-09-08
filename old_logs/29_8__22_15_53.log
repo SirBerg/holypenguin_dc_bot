@@ -1,9 +1,0 @@
-[[29.8] 22:15:54] [GENERAL Notice] Startup 
-[[29.8] 22:15:54] [GENERAL Notice] LogFile Erstellt
-[[29.8] 22:15:54] [DISCORD Notice] Client erstellt
-[[29.8] 22:15:54] [DISCORD Notice] Command Collection erstellt
-[[29.8] 22:15:54] [DISCORD Notice] Commands zur Collection Hinzugefügt
-[[29.8] 22:15:55] [DISCORD Notice] Startup Complete, der Bot ist jetzt funktionsfähig
-[[29.8] 22:15:58] [DISCORD Notice] Command Benutzt: registration
-[[29.8] 22:15:58] [DISCORD Notice] CommandFile Start: registration
-[[29.8] 22:15:58] [SQL Notice] SQL Verbindung in Registration.js aufgebaut

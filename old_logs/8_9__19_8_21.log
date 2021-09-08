@@ -1,0 +1,10 @@
+[[8.9] 19:8:21] [GENERAL Notice] Startup 
+[[8.9] 19:8:21] [GENERAL Notice] LogFile Erstellt
+[[8.9] 19:8:21] [DISCORD Notice] Client erstellt
+[[8.9] 19:8:21] [DISCORD Notice] Command Collection erstellt
+[[8.9] 19:8:21] [DISCORD Notice] Commands zur Collection Hinzugefügt
+[[8.9] 19:8:22] [DISCORD Notice] Startup Complete, der Bot ist jetzt funktionsfähig
+[[8.9] 19:8:33] [DISCORD Notice] Command Benutzt: control_panel
+[[8.9] 19:8:33] [DISCORD Notice] Start ControllPanel.js
+[[8.9] 19:8:33] [GENERAL Warning]Websocket Error: 
+[object Object]

@@ -139,8 +139,8 @@ module.exports = {
                                             await interaction.reply('Bei uns ist ein Fehler aufgetreten! Bitte versuche es nocheinmal oder Kontaktiere Sir Berg oder Svenum!')
                                         }
                                         else{
-                                            console.log(get_current_time()+sql_notice+general_state_good+'Der User '+dc_user_id+' hat das Spiel mit der ID: '+gameserver_id+' mit seinem Konto verbunden!')
-                                            append_log(get_current_time_ohne_blau()+sql_notice_ohne+general_state_good+'Der User '+dc_user_id+' hat das Spiel mit der ID: '+gameserver_id+' mit seinem Konto verbunden!')
+                                            console.log(get_current_time()+sql_notice+'Der User '+dc_user_id+' hat das Spiel mit der ID: '+gameserver_id+' mit seinem Konto verbunden!')
+                                            append_log(get_current_time_ohne_blau()+sql_notice_ohne+'Der User '+dc_user_id+' hat das Spiel mit der ID: '+gameserver_id+' mit seinem Konto verbunden!')
                                             const embed = new Discord.MessageEmbed()
                                             embed.setColor('#bb04db')
                                             embed.setTitle('Erfolg!')

@@ -1,9 +1,0 @@
-[[29.8] 21:30:46] [GENERAL Notice] Startup 
-[[29.8] 21:30:46] [GENERAL Notice] LogFile Erstellt
-[[29.8] 21:30:47] [DISCORD Notice] Client erstellt
-[[29.8] 21:30:47] [DISCORD Notice] Command Collection erstellt
-[[29.8] 21:30:47] [DISCORD Notice] Commands zur Collection Hinzugefügt
-[[29.8] 21:30:47] [DISCORD Notice] Startup Complete, der Bot ist jetzt funktionsfähig
-[[29.8] 21:30:53] [DISCORD Notice] Command Benutzt: registration
-[[29.8] 21:30:53] [GENERAL Warning][DISCORD Warning] Es gab ein Problem bei der Commands ausführung: 
-SyntaxError: Unexpected token o in JSON at position 1
