@@ -72,7 +72,10 @@ async function wrapper(){
         //erstellt das logfile
         current_log_file_path = __dirname+ `/`+get_current_time_friendly()+'.log'    
         await sleep(100)
+        const { log_file } = require('./tets_class.js')
 
+        const file_log = new log_file(current_log_file_path)
+        file_log.log('Test')
         //fügt den pfad des logfiles in die config.json ein
         db.push("/path", current_log_file_path.toString())
 
