@@ -26,8 +26,8 @@ const { sql_notice } = require('../helper/states.js');
 //um den log pfad zu bekommen
 const { JsonDB } = require("node-json-db")
 const { Config } = require("node-json-db/dist/lib/JsonDBConfig")
-var db = new JsonDB(new Config("D:/GitHub/holypenguin_dc_bot/config.json", true, false, '/'));
-const path = db.getData('/path')
+var db = new JsonDB(new Config("./config.json"), true, false, '/')
+let path = db.getData('/path')
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -143,14 +143,31 @@ module.exports = {
 					collector.on('collect', async i =>{
 						const jwt = require('jsonwebtoken')
 						if( i.customId === 'start'){
-							embed.setTitle('Server wird gestartet: '+name)
-							embed.setURL('https://holypenguin.de')
-							embed.setColor('#bb04db')
-							embed.setURL('https://holypenguin.de')
-							embed.setThumbnail('https://media.discordapp.net/attachments/768723694666121236/850382374859702302/Logo.png')
-							embed.setTimestamp()
-							embed.setDescription('Dein Server wird nun Gestartet, bitte warte kurz')
-							
+							let array_responses = []
+
+							//um später beim eintreffen einer nachricht die embed nachricht zu updaten
+							async function gen_embed(arr){
+								console.log(arr)
+								embed.setTitle('Server wird gestartet: '+name)
+								embed.setURL('https://holypenguin.de')
+								embed.setColor('#bb04db')
+								embed.setURL('https://holypenguin.de')
+								embed.setThumbnail('https://media.discordapp.net/attachments/768723694666121236/850382374859702302/Logo.png')
+								embed.setTimestamp()
+
+								//weder der name noch der wert eines embed fields darf null sein, deswegen diese logik hier
+								if(arr.length === 0){
+
+								}
+								else{
+									embed.addField('Serveroutput:', array_responses.toString())
+								}
+
+								
+								embed.setDescription('Dein Server wird nun Gestartet, bitte warte kurz')
+							}
+
+							await gen_embed(array_responses)
 							//generates jwt string
 							let token
 							jwt.sign({"command":"start"}, secure_string, (err, jwt)=>{
@@ -162,16 +179,31 @@ module.exports = {
 								token = jwt
 							})
 							await sleep(100)
+
+							//zum authentifizieren an den websocket server
 							connection.send(token)
+							console.log(get_current_time()+general_notice+discord_notice+'JWT Token, zum Authentifizieren gesendet!')
+							append_log(get_current_time_ohne_blau()+general_notice_ohne+discord_notice_ohne+'JWT Token, zum Authentifizieren gesendet!')
+
+							//zum eigentlichen starten des servers
 							connection.send(JSON.stringify({"command": "start"}))
+							console.log(get_current_time()+general_notice+discord_notice+'Starten Command an Websocket gesendet!')
+							append_log(get_current_time_ohne_blau()+general_notice_ohne+discord_notice_ohne+'Starten Command an Websocket gesendet!')
+							let y = 0
+							connection.on('message', async function (message){
+								array_responses.push(message.toString()+'\n')
+								if(message.toString().includes('For help, type "help"')){
+									await sleep(100)
+									gen_embed(array_responses)
+									await i.update({embeds:[embed]})
+								}
+							})
+							
+							//updatet die discord nachricht einmal, damit der users versteht das etwas getan wird
+							//await i.update({embeds: [embed]})
 
 
-							connection.onmessage = message =>{
-								console.log(message)
-							}
-							console.log(get_current_time()+general_notice+discord_notice+'JWT Token, zum starten eines Servers gesendet!')
-							append_log(get_current_time_ohne_blau()+general_notice_ohne+discord_notice_ohne+'JWT Token, zum starten eines Servers gesendet!')
-							await i.update({embeds: [embed]})
+							
 						}
 						else if('save'){
 							embed.setTitle('Server wird gesichert: '+name)
