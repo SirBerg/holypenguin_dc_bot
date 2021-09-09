@@ -25,9 +25,8 @@ const { sql_notice } = require('../helper/states.js');
 //um den log pfad zu bekommen
 const { JsonDB } = require("node-json-db")
 const { Config } = require("node-json-db/dist/lib/JsonDBConfig")
-var db = new JsonDB(new Config("D:/GitHub/holypenguin_dc_bot/config.json", true, false, '/'));
-
-const path = db.getData("/path")
+var db = new JsonDB(new Config("./config.json"), true, false, '/')
+let path = db.getData('/path')
 
 //eigentliche command logik
 module.exports = {

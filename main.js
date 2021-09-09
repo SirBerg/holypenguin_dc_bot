@@ -5,7 +5,7 @@ const { token } = require('./config.json');
 const { JsonDB } = require("node-json-db")
 const { Config } = require("node-json-db/dist/lib/JsonDBConfig")
 var db = new JsonDB(new Config("./config.json", true, false, '/'));
-
+var db2 = new JsonDB(new Config("./commands/config.json"), true, false, '/')
 // Sleep Funktion
 function sleep(ms) {
     return new Promise((resolve) => {
@@ -70,7 +70,7 @@ async function wrapper(){
         }while(i<result.length)
         
         //erstellt das logfile
-        current_log_file_path = __dirname+ `/`+get_current_time_friendly()+'.log'    
+        current_log_file_path = __dirname+ `/`+get_current_time_friendly()+'.log'
         await sleep(100)
         //const { log_file } = require('./tets_class.js')
 
@@ -78,7 +78,8 @@ async function wrapper(){
         //file_log.log('Test')
         //fügt den pfad des logfiles in die config.json ein
         db.push("/path", current_log_file_path.toString())
-
+        db2.push("/path", current_log_file_path.toString())
+        
         fs.writeFile(current_log_file_path , get_current_time_ohne_blau()+general_notice_ohne+"Startup \n"+get_current_time_ohne_blau()+general_notice_ohne+"LogFile Erstellt\n", (err, result)=>{
             if(err){
                 console.log(general_error+filesystem_module_error+'Das LogFile Konnte nicht erstellt werden')
