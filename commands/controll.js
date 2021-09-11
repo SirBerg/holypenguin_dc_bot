@@ -95,7 +95,8 @@ module.exports = {
 					
 					//holt den Port für den Websocket raus
 					const host = db.getData('/host')
-					const connection = new WebSocket('ws://192.168.159.128:8080')//+result[0].usr2gm_Websocket_Port)
+					let port = result[0].usr2gm_Websocket_Port
+					const connection = new WebSocket('ws://'+host+':'+result[0].usr2gm_Websocket_Port)//+result[0].usr2gm_Websocket_Port)
 					
 					connection.onopen = () => {
 						//sobald die websocket verbindung geöffnet wird, wird hier geconsole logged
@@ -109,6 +110,22 @@ module.exports = {
 						console.log(get_current_time()+general_warning+'Websocket Error: \n'+error)
 						append_log(get_current_time_ohne_blau()+general_warning_ohne+'Websocket Error: \n'+error)
 					}
+					const jwt = require('jsonwebtoken')
+					//generates jwt string
+					let token
+					let secure_string = "lSdxqpgg00s0kWqyP678iFx1IoMeFmY8"
+					jwt.sign({"command":"start"}, secure_string, (err, jwt)=>{
+						if(err){
+							console.log(get_current_time()+general_error+discord_warning+'JWT Error in controlljs:\n'+err)
+							append_log(get_current_time_ohne_blau()+general_error_ohne+discord_warning_ohne+'JWT Error in controlljs')
+							append_log(err)
+						}
+						token = jwt
+					})
+					await sleep(100)
+
+					//zum authentifizieren an den websocket server
+					connection.send(token)
 
 					let gm_Name, gm_Type,gm_Version, name
 
@@ -139,83 +156,77 @@ module.exports = {
 					const collector = interaction.channel.createMessageComponentCollector({ filter, time: 300000 });
 
 					//sobald ein Knopf gedrückt wird, wird die Nachricht geupdatet
-					let secure_string = "lSdxqpgg00s0kWqyP678iFx1IoMeFmY8"
+					
 					collector.on('collect', async i =>{
+
 						const jwt = require('jsonwebtoken')
+						
 						if( i.customId === 'start'){
-							let array_responses = []
+							//gitb uns mehr zeit und ruft holypenguin is thinking als initial reply hinzu
+							await i.deferReply()
+							const {scan_for_port} = require('../helper/scan_for_port')
+							let host_port_is_open = await scan_for_port(port)
 
-							//um später beim eintreffen einer nachricht die embed nachricht zu updaten
-							async function gen_embed(arr){
-								console.log(arr)
-								embed.setTitle('Server wird gestartet: '+name)
-								embed.setURL('https://holypenguin.de')
-								embed.setColor('#bb04db')
-								embed.setURL('https://holypenguin.de')
-								embed.setThumbnail('https://media.discordapp.net/attachments/768723694666121236/850382374859702302/Logo.png')
-								embed.setTimestamp()
-
-								//weder der name noch der wert eines embed fields darf null sein, deswegen diese logik hier
-								if(arr.length === 0){
-
-								}
-								else{
-									embed.addField('Serveroutput:', array_responses.toString())
-								}
-
+							//falls der host port online ist wird weiter ausgeführt.
+							if(host_port_is_open === true){
+								console.log(get_current_time()+general_notice+discord_notice+'JWT Token, zum Authentifizieren gesendet!')
+								append_log(get_current_time_ohne_blau()+general_notice_ohne+discord_notice_ohne+'JWT Token, zum Authentifizieren gesendet!')
+	
+								//zum eigentlichen starten des servers
+								connection.send(JSON.stringify({"command": "start"}))
+								console.log(get_current_time()+general_notice+discord_notice+'Starten Command an Websocket gesendet!')
+								append_log(get_current_time_ohne_blau()+general_notice_ohne+discord_notice_ohne+'Starten Command an Websocket gesendet!')
 								
-								embed.setDescription('Dein Server wird nun Gestartet, bitte warte kurz')
+								//sobald For help, type "help" zurück kommt wird die Nachricht geupdatet
+									connection.on('message', async function (message){
+
+										if(message.toString().includes('For help, type "help"')){
+											i.editReply({content:"Dein Server ist Gestartet!"})
+										}
+										else if(message.toString().includes('Unknown or incomplete command, see below for error')){
+											i.editReply({content: "Dein Server war bereits Gestartet!"})
+										}
+									})
 							}
-
-							await gen_embed(array_responses)
-							//generates jwt string
-							let token
-							jwt.sign({"command":"start"}, secure_string, (err, jwt)=>{
-								if(err){
-									console.log(get_current_time()+general_error+discord_warning+'JWT Error in controlljs:\n'+err)
-									append_log(get_current_time_ohne_blau()+general_error_ohne+discord_warning_ohne+'JWT Error in controlljs')
-									append_log(err)
-								}
-								token = jwt
-							})
-							await sleep(100)
-
-							//zum authentifizieren an den websocket server
-							connection.send(token)
-							console.log(get_current_time()+general_notice+discord_notice+'JWT Token, zum Authentifizieren gesendet!')
-							append_log(get_current_time_ohne_blau()+general_notice_ohne+discord_notice_ohne+'JWT Token, zum Authentifizieren gesendet!')
-
-							//zum eigentlichen starten des servers
-							connection.send(JSON.stringify({"command": "start"}))
-							console.log(get_current_time()+general_notice+discord_notice+'Starten Command an Websocket gesendet!')
-							append_log(get_current_time_ohne_blau()+general_notice_ohne+discord_notice_ohne+'Starten Command an Websocket gesendet!')
-							let y = 0
-							connection.on('message', async function (message){
-								array_responses.push(message.toString()+'\n')
-								if(message.toString().includes('For help, type "help"')){
-									await sleep(100)
-									gen_embed(array_responses)
-									await i.update({embeds:[embed]})
-								}
-							})
-							
-							//updatet die discord nachricht einmal, damit der users versteht das etwas getan wird
-							//await i.update({embeds: [embed]})
-
-
+							else{
+								i.editReply({content: "Sorry, anscheinend ist dein Container noch nicht gestartet, das kann daran liegen das unser Server nicht an ist, oder das ein anderer schwerwiegender Fehler vorliegt \n Falls dieses Problem besteht und du dir sicher bist, dass unser Server online ist, melde dich bitte bei @Sir Berg oder @Svenum damit wir eine Lösung finden können!"})
+							}
 							
 						}
 						else if('save'){
-							embed.setTitle('Server wird gesichert: '+name)
-							embed.setURL('https://holypenguin.de')
-							embed.setColor('#bb04db')
-							embed.setURL('https://holypenguin.de')
-							embed.setThumbnail('https://media.discordapp.net/attachments/768723694666121236/850382374859702302/Logo.png')
-							embed.setTimestamp()
-							embed.setDescription('Dein Server wird nun Gesichert, bitte warte kurz')
 
-							await i.update({embeds: [embed]})
+							//gibt uns mehr zeit (wie schon oben erwähnt in start)
+							await i.deferReply()
+
+							//das muss leider bei jedem statement gemacht werden, weil sonst vielleicht der status sich ändert!
+							const {scan_for_port} = require('../helper/scan_for_port')
+							let host_port_is_open = await scan_for_port(port)
+
+							if(host_port_is_open === true){
+								connection.send(JSON.stringify({"command": "save"}))
+								function send_if_timeout(){
+									i.editReply({content: "Wir konnten deinen Server leider nicht erreichen, bitte versuche es nocheinmal. Falls das Problem besteht wende dich an @Sir Berg oder @Svenum!"})
+								}
+								setTimeout(send_if_timeout, 30000)
+								//sendet sobald saved vom websocket zurück kommt eine nachricht
+								connection.on('message', async (message)=>{
+									if(message.toString().includes("Saved")){
+										clearTimeout(send_if_timeout)
+										i.editReply({content: "Dein Spiel wurde gesichert!"})
+									}
+								})
+							}
+							else{
+								i.editReply({content: "Sorry, anscheinend ist dein Container noch nicht gestartet, das kann daran liegen das unser Server nicht an ist, oder das ein anderer schwerwiegender Fehler vorliegt \n Falls dieses Problem besteht und du dir sicher bist, dass unser Server online ist, melde dich bitte bei @Sir Berg oder @Svenum damit wir eine Lösung finden können!"})
+							}
+
+							//logt auf der konsole und ins log
+							console.log(get_current_time()+general_notice+discord_notice+'Save Command an Websocket gesendet!')
+							append_log(get_current_time_ohne_blau()+general_notice_ohne+discord_notice_ohne+'Save Command an Websocket gesendet!')
+
+
 						}
+
 						else if('stop'){
 							embed.setTitle('Server wird gestoppt: '+name)
 							embed.setURL('https://holypenguin.de')

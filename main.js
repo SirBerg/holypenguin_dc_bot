@@ -127,6 +127,7 @@ async function wrapper(){
     
     //handled die Commands
     client.on('interactionCreate', async interaction => {
+        //interaction.deferReply()
         if (!interaction.isCommand()) return;
         const { commandName } = interaction;
 
