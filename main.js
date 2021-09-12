@@ -28,6 +28,7 @@ console.log(get_current_time()+general_notice+'Startup')
 
 let current_log_file_path
 let current_log_file_path_extern
+
 //um an das logfile anzuhängen
 async function append_log(value){
     fs.appendFile(current_log_file_path , value+'\n', (err, result)=>{

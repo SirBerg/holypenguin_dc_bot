@@ -1,0 +1,9 @@
+[[12.9] 16:39:25] [GENERAL Notice] Startup 
+[[12.9] 16:39:25] [GENERAL Notice] LogFile Erstellt
+[[12.9] 16:39:25] [DISCORD Notice] Client erstellt
+[[12.9] 16:39:25] [DISCORD Notice] Commands zur Collection Hinzugefügt
+[[12.9] 16:39:25] [DISCORD Notice] Command Collection erstellt
+[[12.9] 16:39:26] [DISCORD Notice] Startup Complete, der Bot ist jetzt funktionsfähig
+[[12.9] 16:39:29] [DISCORD Notice] Command Benutzt: control_panel
+[[12.9] 16:39:29] [DISCORD Notice] Start ControllPanel.js
+[[12.9] 16:39:29] [GENERAL Notice] Websocket verbindung zu Port: 8080

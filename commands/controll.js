@@ -96,6 +96,7 @@ module.exports = {
 					//holt den Port für den Websocket raus
 					const host = db.getData('/host')
 					let port = result[0].usr2gm_Websocket_Port
+					let gm_port = result[0].usr2gm_Game_Port
 					const connection = new WebSocket('ws://'+host+':'+result[0].usr2gm_Websocket_Port)//+result[0].usr2gm_Websocket_Port)
 					
 					connection.onopen = () => {
@@ -148,7 +149,8 @@ module.exports = {
 						new Discord.MessageButton().setCustomId('start').setLabel('Start').setStyle('PRIMARY'),
 						new Discord.MessageButton().setCustomId('save').setLabel('Save').setStyle('PRIMARY'),
 						new Discord.MessageButton().setCustomId('stop').setLabel('Stop').setStyle('PRIMARY'),
-						new Discord.MessageButton().setCustomId('restart').setLabel('Restart').setStyle('PRIMARY')
+						new Discord.MessageButton().setCustomId('restart').setLabel('Restart').setStyle('PRIMARY'),
+						new Discord.MessageButton().setCustomId('status').setLabel('Status').setStyle('PRIMARY')						
 					)
 					
 					//filter und collector für die updates der nachricht weiter unten
@@ -171,7 +173,7 @@ module.exports = {
 							if(host_port_is_open === true){
 								console.log(get_current_time()+general_notice+discord_notice+'JWT Token, zum Authentifizieren gesendet!')
 								append_log(get_current_time_ohne_blau()+general_notice_ohne+discord_notice_ohne+'JWT Token, zum Authentifizieren gesendet!')
-	
+
 								//zum eigentlichen starten des servers
 								connection.send(JSON.stringify({"command": "start"}))
 								console.log(get_current_time()+general_notice+discord_notice+'Starten Command an Websocket gesendet!')
@@ -188,20 +190,22 @@ module.exports = {
 										}
 									})
 							}
+
+							//sonst wird eine fehler meldung ausgegeben
 							else{
 								i.editReply({content: "Sorry, anscheinend ist dein Container noch nicht gestartet, das kann daran liegen das unser Server nicht an ist, oder das ein anderer schwerwiegender Fehler vorliegt \n Falls dieses Problem besteht und du dir sicher bist, dass unser Server online ist, melde dich bitte bei @Sir Berg oder @Svenum damit wir eine Lösung finden können!"})
 							}
 							
 						}
-						else if('save'){
+						else if(i.customId === 'save'){
 
 							//gibt uns mehr zeit (wie schon oben erwähnt in start)
 							await i.deferReply()
 
 							//das muss leider bei jedem statement gemacht werden, weil sonst vielleicht der status sich ändert!
 							const {scan_for_port} = require('../helper/scan_for_port')
-							let host_port_is_open = await scan_for_port(port)
-
+							let host_port_is_open = await scan_for_port(gm_port)
+							
 							if(host_port_is_open === true){
 								connection.send(JSON.stringify({"command": "save"}))
 								function send_if_timeout(){
@@ -211,43 +215,138 @@ module.exports = {
 								//sendet sobald saved vom websocket zurück kommt eine nachricht
 								connection.on('message', async (message)=>{
 									if(message.toString().includes("Saved")){
-										clearTimeout(send_if_timeout)
+										clearTimeout(send_if_timeout())
 										i.editReply({content: "Dein Spiel wurde gesichert!"})
 									}
 								})
 							}
 							else{
-								i.editReply({content: "Sorry, anscheinend ist dein Container noch nicht gestartet, das kann daran liegen das unser Server nicht an ist, oder das ein anderer schwerwiegender Fehler vorliegt \n Falls dieses Problem besteht und du dir sicher bist, dass unser Server online ist, melde dich bitte bei @Sir Berg oder @Svenum damit wir eine Lösung finden können!"})
+								i.editReply({content: "Dein Server ist anscheinend noch nicht gestartet, bitte starte ihn zuerst mit dem Start Button"})
 							}
 
 							//logt auf der konsole und ins log
 							console.log(get_current_time()+general_notice+discord_notice+'Save Command an Websocket gesendet!')
 							append_log(get_current_time_ohne_blau()+general_notice_ohne+discord_notice_ohne+'Save Command an Websocket gesendet!')
-
-
 						}
 
-						else if('stop'){
-							embed.setTitle('Server wird gestoppt: '+name)
+						else if(i.customId === 'stop'){
+							await i.deferReply()
+
+							//das muss leider bei jedem statement gemacht werden, weil sonst vielleicht der status sich ändert!
+							const {scan_for_port} = require('../helper/scan_for_port')
+							let host_port_is_open = await scan_for_port(port)
+
+							if(host_port_is_open === true){
+								connection.send(JSON.stringify({"command":"stop"}))
+
+								//timeout message, damit der user weiß das etwas nicht stimmt
+								function send_if_timeout(){
+									i.editReply({content: "Wir konnten deinen Server leider nicht erreichen, bitte versuche es nocheinmal. Falls das Problem besteht wende dich an @Sir Berg oder @Svenum!"})
+								}
+								let y = 0
+								let timer = setTimeout(send_if_timeout, 90000)
+								//um zu testen ob der server wirklich heruntergefahren ist
+								async function test_for_port(){
+									if(await scan_for_port(gm_port) === true){
+										y = 0
+										await sleep(1000)
+									}
+									else{	
+										i.editReply('Dein Server ist jetzt heruntergefahren')
+										if(timer){
+											clearTimeout(timer)
+										}
+										y = 1
+									}
+								}
+
+								do{
+									await test_for_port()
+								}
+								while(y === 0)
+							}
+						}
+						else if (i.customId === 'restart'){
+							i.reply('Das könnte ein bisschen dauern, die Embed Nachricht oben wird geupdatet wenn dein Server neugestartet ist!')
+							connection.send('{"command": "restart"}')
+							embed.setTitle('Dein Server wird Neugestartet, bitte hab etwas Geduld!')
+							embed.setURL('https://holypenguin.de')
+							embed.setColor('#bb04db')
+							embed.setThumbnail('https://media.discordapp.net/attachments/768723694666121236/850382374859702302/Logo.png')
+							embed.setTimestamp()
+							const button1 = new Discord.MessageActionRow().addComponents(
+								new Discord.MessageButton().setCustomId('start').setLabel('Start').setStyle('PRIMARY').setDisabled(true),
+								new Discord.MessageButton().setCustomId('save').setLabel('Save').setStyle('PRIMARY').setDisabled(true),
+								new Discord.MessageButton().setCustomId('stop').setLabel('Stop').setStyle('PRIMARY').setDisabled(true),
+								new Discord.MessageButton().setCustomId('restart').setLabel('Restart').setStyle('PRIMARY').setDisabled(true),
+								new Discord.MessageButton().setCustomId('status').setLabel('Status').setStyle('PRIMARY').setDisabled(true)						
+							)
+							let count = 0
+
+							let count_true = 0
+
+							//um zu checken was vorher beim scan rausgekommen ist
+							//0 für true, 1 für false
+							let previous = 5
+							y = 0
+							function update_message(){
+								embed.setTitle('Controlls für: '+name)
+								interaction.editReply({embeds:[embed]})
+							}
+							async function test_for_port(){
+								if(await scan_for_port(gm_port) === true){
+									
+									await sleep(1000)
+									if(previous === 5){
+										previous = 0
+										count_true = 1
+										embed.setDescription("Status: Offline! 🔴")
+										interaction.editReply({embeds: [embed], components: [button1]})
+									}
+									else if(count_true === 2 && previous === 1){
+										embed.setTitle('Erfolg! Dein Server wurde neugestartet')
+										embed.setDescription("Status: Online! 🟢")
+										i.deleteReply()
+										interaction.editReply({embeds: [embed], components: [button]})
+										setTimeout(update_message, 10000)
+										y = 1
+									}
+								}
+								else{
+									if(previous === 0 && count_true === 1){
+										count_true = 2
+										previous = 1
+									}
+									await sleep(1000)
+									
+								}
+							}
+
+							do{
+								await test_for_port()
+							}
+							while(y === 0)
+							interaction.editReply({embeds: [embed]})
+						}	
+						else if(i.customId === 'status'){
+							const {scan_for_port} = require('../helper/scan_for_port')
+
+							embed.setTitle('Controlls für: '+name)
 							embed.setURL('https://holypenguin.de')
 							embed.setColor('#bb04db')
 							embed.setURL('https://holypenguin.de')
 							embed.setThumbnail('https://media.discordapp.net/attachments/768723694666121236/850382374859702302/Logo.png')
 							embed.setTimestamp()
-							embed.setDescription('Dein Server wird nun Gestoppt, bitte warte kurz')
-
-							await i.update({embeds: [embed]})
-						}
-						else if ('restart'){
-							embed.setTitle('Server wird neugestartet: '+name)
-							embed.setURL('https://holypenguin.de')
-							embed.setColor('#bb04db')
-							embed.setURL('https://holypenguin.de')
-							embed.setThumbnail('https://media.discordapp.net/attachments/768723694666121236/850382374859702302/Logo.png')
-							embed.setTimestamp()
-							embed.setDescription('Dein Server wird nun neugestartet, bitte warte kurz')
 							
-							await i.update({embeds: [embed]})
+							
+							
+							if(await scan_for_port(gm_port) === true){
+								embed.setDescription('Status: Online! 🟢 (Anmerkung: Du musst auf den Statusknopf drücken um eine Änderung zu sehen!)')
+							}
+							else{
+								embed.setDescription('Status: Offline! 🔴 (Anmerkung: Du musst auf den Statusknopf drücken um eine Änderung zu sehen!)')
+							}
+							i.update({embeds: [embed]})
 						}
 					})
 
@@ -257,7 +356,14 @@ module.exports = {
 					embed.setURL('https://holypenguin.de')
 					embed.setThumbnail('https://media.discordapp.net/attachments/768723694666121236/850382374859702302/Logo.png')
 					embed.setTimestamp()
-					embed.setDescription('Hier sind die Commands für GameServer: '+name)
+					const {scan_for_port} = require('../helper/scan_for_port')
+
+					if(await scan_for_port(gm_port) === true){
+						embed.setDescription('Status: Online! 🟢 (Anmerkung: Du musst auf den Statusknopf drücken um eine Änderung zu sehen!)')
+					}
+					else{
+						embed.setDescription('Status: Offline! 🔴 (Anmerkung: Du musst auf den Statusknopf drücken um eine Änderung zu sehen!)')
+					}
 
 					await interaction.reply({ephemeral: true, embeds: [embed], components: [button]})
 				})
