@@ -29,6 +29,23 @@ const { Config } = require("node-json-db/dist/lib/JsonDBConfig")
 var db = new JsonDB(new Config("./config.json"), true, false, '/')
 let path = db.getData('/path')
 
+const {scan_for_port} = require('../helper/scan_for_port')
+function revert_embed(){
+	embed.setTitle('Controlls für: '+name)
+	embed.setURL('https://holypenguin.de')
+	embed.setColor('#bb04db')
+	embed.setURL('https://holypenguin.de')
+	embed.setThumbnail('https://media.discordapp.net/attachments/768723694666121236/850382374859702302/Logo.png')
+	embed.setTimestamp()
+
+	if(await scan_for_port(gm_port) === true){
+		embed.setDescription('Status: Online! 🟢 ')
+	}
+	else{
+		embed.setDescription('Status: Offline! 🔴 ')
+	}
+	interaction.editReply({embeds: [embed]})
+}
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('control_panel')
@@ -152,6 +169,14 @@ module.exports = {
 						new Discord.MessageButton().setCustomId('restart').setLabel('Restart').setStyle('PRIMARY'),
 						new Discord.MessageButton().setCustomId('status').setLabel('Status').setStyle('PRIMARY')						
 					)
+
+					const button1 = new Discord.MessageActionRow().addComponents(
+						new Discord.MessageButton().setCustomId('start').setLabel('Start').setStyle('PRIMARY').setDisabled(true),
+						new Discord.MessageButton().setCustomId('save').setLabel('Save').setStyle('PRIMARY').setDisabled(true),
+						new Discord.MessageButton().setCustomId('stop').setLabel('Stop').setStyle('PRIMARY').setDisabled(true),
+						new Discord.MessageButton().setCustomId('restart').setLabel('Restart').setStyle('PRIMARY').setDisabled(true),
+						new Discord.MessageButton().setCustomId('status').setLabel('Status').setStyle('PRIMARY').setDisabled(true)						
+					)
 					
 					//filter und collector für die updates der nachricht weiter unten
 					const filter = i => i.user.id === dc_user_id;
@@ -165,30 +190,38 @@ module.exports = {
 						
 						if( i.customId === 'start'){
 							//gitb uns mehr zeit und ruft holypenguin is thinking als initial reply hinzu
-							await i.deferReply()
-							const {scan_for_port} = require('../helper/scan_for_port')
+							await i.reply("Einen Moment, wir arbeiten dran!")
 							let host_port_is_open = await scan_for_port(port)
 
 							//falls der host port online ist wird weiter ausgeführt.
 							if(host_port_is_open === true){
+								let gm_port_is_open = await scan_for_port(gm_port)
 								console.log(get_current_time()+general_notice+discord_notice+'JWT Token, zum Authentifizieren gesendet!')
 								append_log(get_current_time_ohne_blau()+general_notice_ohne+discord_notice_ohne+'JWT Token, zum Authentifizieren gesendet!')
-
+								
 								//zum eigentlichen starten des servers
 								connection.send(JSON.stringify({"command": "start"}))
 								console.log(get_current_time()+general_notice+discord_notice+'Starten Command an Websocket gesendet!')
 								append_log(get_current_time_ohne_blau()+general_notice_ohne+discord_notice_ohne+'Starten Command an Websocket gesendet!')
 								
-								//sobald For help, type "help" zurück kommt wird die Nachricht geupdatet
-									connection.on('message', async function (message){
-
-										if(message.toString().includes('For help, type "help"')){
-											i.editReply({content:"Dein Server ist Gestartet!"})
-										}
-										else if(message.toString().includes('Unknown or incomplete command, see below for error')){
-											i.editReply({content: "Dein Server war bereits Gestartet!"})
-										}
-									})
+								//scannt für den gameport und updatet dann wenn er offen ist
+								y = 0
+								async function scan(){
+									if(await scan_for_port(gm_port) === true){
+										embed.setTitle("Erfolg!")
+										embed.setDescription("Dein Server wurde erfolgreich hochgefahren!")
+										interaction.editReply({embeds: [embed]})
+										setTimeout(revert_embed, 20000)
+										y = 1
+									}
+									else{
+										await sleep(1000)
+									}
+								}
+								
+								do{
+									await scan()
+								}while(y === 0)
 							}
 
 							//sonst wird eine fehler meldung ausgegeben
@@ -203,7 +236,6 @@ module.exports = {
 							await i.deferReply()
 
 							//das muss leider bei jedem statement gemacht werden, weil sonst vielleicht der status sich ändert!
-							const {scan_for_port} = require('../helper/scan_for_port')
 							let host_port_is_open = await scan_for_port(gm_port)
 							
 							if(host_port_is_open === true){
@@ -233,7 +265,6 @@ module.exports = {
 							await i.deferReply()
 
 							//das muss leider bei jedem statement gemacht werden, weil sonst vielleicht der status sich ändert!
-							const {scan_for_port} = require('../helper/scan_for_port')
 							let host_port_is_open = await scan_for_port(port)
 
 							if(host_port_is_open === true){
@@ -274,13 +305,7 @@ module.exports = {
 							embed.setColor('#bb04db')
 							embed.setThumbnail('https://media.discordapp.net/attachments/768723694666121236/850382374859702302/Logo.png')
 							embed.setTimestamp()
-							const button1 = new Discord.MessageActionRow().addComponents(
-								new Discord.MessageButton().setCustomId('start').setLabel('Start').setStyle('PRIMARY').setDisabled(true),
-								new Discord.MessageButton().setCustomId('save').setLabel('Save').setStyle('PRIMARY').setDisabled(true),
-								new Discord.MessageButton().setCustomId('stop').setLabel('Stop').setStyle('PRIMARY').setDisabled(true),
-								new Discord.MessageButton().setCustomId('restart').setLabel('Restart').setStyle('PRIMARY').setDisabled(true),
-								new Discord.MessageButton().setCustomId('status').setLabel('Status').setStyle('PRIMARY').setDisabled(true)						
-							)
+
 							let count = 0
 
 							let count_true = 0
@@ -329,7 +354,6 @@ module.exports = {
 							interaction.editReply({embeds: [embed]})
 						}	
 						else if(i.customId === 'status'){
-							const {scan_for_port} = require('../helper/scan_for_port')
 
 							embed.setTitle('Controlls für: '+name)
 							embed.setURL('https://holypenguin.de')
@@ -356,7 +380,6 @@ module.exports = {
 					embed.setURL('https://holypenguin.de')
 					embed.setThumbnail('https://media.discordapp.net/attachments/768723694666121236/850382374859702302/Logo.png')
 					embed.setTimestamp()
-					const {scan_for_port} = require('../helper/scan_for_port')
 
 					if(await scan_for_port(gm_port) === true){
 						embed.setDescription('Status: Online! 🟢 (Anmerkung: Du musst auf den Statusknopf drücken um eine Änderung zu sehen!)')
@@ -365,7 +388,7 @@ module.exports = {
 						embed.setDescription('Status: Offline! 🔴 (Anmerkung: Du musst auf den Statusknopf drücken um eine Änderung zu sehen!)')
 					}
 
-					await interaction.reply({ephemeral: true, embeds: [embed], components: [button]})
+					await interaction.reply({embeds: [embed], components: [button]})
 				})
 			} 
 
