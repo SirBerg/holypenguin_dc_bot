@@ -1,0 +1,99 @@
+{
+    "server_single": {
+        "verbs": ["stop", "start", "save", "restart", "status"],
+        "stop": {
+            "message": "Dein Server wird nun gestoppt! Einen Moment!",
+            "title": "Server wird gestoppt: "
+        },
+        "status":{
+            "message": "Der Status deines Servers ist: ",
+            "msg_status": {
+                "offline": {
+                    "message": "Offline! ",
+                    "emoji": "🔴"
+                },
+                "online": {
+                    "message": "Online! ",
+                    "emoji": "🟢"
+                }
+            }
+        },
+        "start": {
+            "message": "Dein Server wird nun gestartet! Einen Moment!",
+            "title": "Server wird gestoppt: "
+        },
+        "restart": {
+            "message": "Dein Server wird nun neugestartet! Einen Moment!",
+            "title": "Server wird neugestartet: "
+        },
+        "save": {
+            "message": "Dein Server wird nun gesichert! Einen Moment!",
+            "title": "Server wird gesichert: "
+        },
+        "errors": {
+            "timeout": "Die Verbindung ist anscheinend abgebrochen, bitte versuche es erneut! Falls das Problem besteht, schreibe bitte @Sir Berg oder @Svenum an."
+        },
+        "states": {
+            "success": "Erfolg!"
+        },
+        "other": {
+            "wait": "Das dauert einen Moment, bitte habe etwas Geduld!",
+            "wait_restart": "Das könnte ein bisschen dauern, die Embed Nachricht oben wird geupdatet wenn dein Server neugestartet ist!"
+        }
+    },
+
+    "server_multi": {
+        "verbs": ["stop", "start", "save", "restart", "status", "next", "previous"],
+        "stop": {
+            "message": "Dein Server wird nun gestoppt! Einen Moment!",
+            "title": "Server wird gestoppt: "
+        },
+        "status":{
+            "message": "Der Status deines Servers ist: ",
+            "msg_status": {
+                "offline": {
+                    "message": "Offline! ",
+                    "emoji": "🔴"
+                },
+                "online": {
+                    "message": "Online! ",
+                    "emoji": "🟢"
+                }
+            }
+        },
+        "start": {
+            "message": "Dein Server wird nun gestartet! Einen Moment!",
+            "title": "Server wird gestoppt: "
+        },
+        "restart": {
+            "message": "Dein Server wird nun neugestartet! Einen Moment!",
+            "title": "Server wird neugestartet: "
+        },
+        "save": {
+            "message": "Dein Server wird nun gesichert! Einen Moment!",
+            "title": "Server wird gesichert: "
+        },
+        "errors": {
+            "timeout": "Die Verbindung ist anscheinend abgebrochen, bitte versuche es erneut! Falls das Problem besteht, schreibe bitte @Sir Berg oder @Svenum an."
+        },
+        "states": {
+            "success": "Erfolg!"
+        }
+    },
+    "controll": {
+        "embed": {
+            "components": {
+                "start": "Start",
+                "stop": "Stop",
+                "restart": "Neustarten",
+                "save": "Sichern",
+                "next": "Nächster Server",
+                "previous": "Vorheriger Server"
+            },
+            "message":{
+                "title": "Controlls für: ",
+                "description": "Dein Kontrollzentrum für deine(n) Server!"
+            }
+        }
+    }
+}

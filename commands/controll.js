@@ -28,24 +28,9 @@ const { JsonDB } = require("node-json-db")
 const { Config } = require("node-json-db/dist/lib/JsonDBConfig")
 var db = new JsonDB(new Config("./config.json"), true, false, '/')
 let path = db.getData('/path')
-
+let host_ip = db.getData('/host')
+let sql_ip = db.getData('/sql_ip')
 const {scan_for_port} = require('../helper/scan_for_port')
-function revert_embed(){
-	embed.setTitle('Controlls für: '+name)
-	embed.setURL('https://holypenguin.de')
-	embed.setColor('#bb04db')
-	embed.setURL('https://holypenguin.de')
-	embed.setThumbnail('https://media.discordapp.net/attachments/768723694666121236/850382374859702302/Logo.png')
-	embed.setTimestamp()
-
-	if(await scan_for_port(gm_port) === true){
-		embed.setDescription('Status: Online! 🟢 ')
-	}
-	else{
-		embed.setDescription('Status: Offline! 🔴 ')
-	}
-	interaction.editReply({embeds: [embed]})
-}
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('control_panel')
@@ -59,15 +44,25 @@ module.exports = {
 				}
 			})
 		}
+		//importet die messages
+		let msg
+		fs.readFile(__dirname+'/messages.json', (err, result)=>{
+			if(err){
+				console.log(get_current_time()+filesystem_module_error+general_warning+'FS Error in Controll.js: \n'+err)
+				append_log(get_current_time_ohne_blau()+filesystem_module_error_ohne+general_warning_ohne+'FS Error in Controll.js: \n'+err)
+			}
+			msg = JSON.parse(result.toString())
+		})
+		await sleep(500)
 		console.log(get_current_time()+discord_notice+'Start ControllPanel.js')
 		append_log(get_current_time_ohne_blau()+discord_notice_ohne+'Start ControllPanel.js')
 
 		let dc_user_id = interaction.user.id
 
 		const mysql = require('mysql')
-
+		
         let sql = mysql.createConnection({
-            host: "localhost",
+            host: sql_ip,
             user: "server",
             password: "RjdEDNwhM#w0Q5ziM!!Afp%PAd#dXi",
             database: "holypenguin"
@@ -161,21 +156,39 @@ module.exports = {
 					name = gm_Name+' '+gm_Type+' '+gm_Version
 					let embed = new Discord.MessageEmbed()
 
+					//funktion um die embed nachricth zurück zum ursprung zu ändern
+					async function revert_embed(){
+						let embed = new Discord.MessageEmbed()
+						embed.setTitle('Controlls für: '+ name)
+						embed.setURL('https://holypenguin.de')
+						embed.setColor('#bb04db')
+						embed.setURL('https://holypenguin.de')
+						embed.setThumbnail('https://media.discordapp.net/attachments/768723694666121236/850382374859702302/Logo.png')
+						embed.setTimestamp()
+					
+						//checkt ob der gm_port offen ist
+						let gm_port_is_open = await scan_for_port(gm_port)
+						if(gm_port_is_open === true){
+							embed.setDescription('Status: Online! 🟢 ')
+						}
+						else{
+							embed.setDescription('Status: Offline! 🔴 ')
+						}
+						interaction.editReply({embeds: [embed]})
+					}
 
 					const button = new Discord.MessageActionRow().addComponents(
 						new Discord.MessageButton().setCustomId('start').setLabel('Start').setStyle('PRIMARY'),
 						new Discord.MessageButton().setCustomId('save').setLabel('Save').setStyle('PRIMARY'),
 						new Discord.MessageButton().setCustomId('stop').setLabel('Stop').setStyle('PRIMARY'),
-						new Discord.MessageButton().setCustomId('restart').setLabel('Restart').setStyle('PRIMARY'),
-						new Discord.MessageButton().setCustomId('status').setLabel('Status').setStyle('PRIMARY')						
+						new Discord.MessageButton().setCustomId('restart').setLabel('Restart').setStyle('PRIMARY')					
 					)
 
 					const button1 = new Discord.MessageActionRow().addComponents(
 						new Discord.MessageButton().setCustomId('start').setLabel('Start').setStyle('PRIMARY').setDisabled(true),
 						new Discord.MessageButton().setCustomId('save').setLabel('Save').setStyle('PRIMARY').setDisabled(true),
 						new Discord.MessageButton().setCustomId('stop').setLabel('Stop').setStyle('PRIMARY').setDisabled(true),
-						new Discord.MessageButton().setCustomId('restart').setLabel('Restart').setStyle('PRIMARY').setDisabled(true),
-						new Discord.MessageButton().setCustomId('status').setLabel('Status').setStyle('PRIMARY').setDisabled(true)						
+						new Discord.MessageButton().setCustomId('restart').setLabel('Restart').setStyle('PRIMARY').setDisabled(true)				
 					)
 					
 					//filter und collector für die updates der nachricht weiter unten
@@ -190,7 +203,7 @@ module.exports = {
 						
 						if( i.customId === 'start'){
 							//gitb uns mehr zeit und ruft holypenguin is thinking als initial reply hinzu
-							await i.reply("Einen Moment, wir arbeiten dran!")
+							await i.reply(msg.server_single.other.wait)
 							let host_port_is_open = await scan_for_port(port)
 
 							//falls der host port online ist wird weiter ausgeführt.
@@ -211,6 +224,7 @@ module.exports = {
 										embed.setTitle("Erfolg!")
 										embed.setDescription("Dein Server wurde erfolgreich hochgefahren!")
 										interaction.editReply({embeds: [embed]})
+										i.deleteReply()
 										setTimeout(revert_embed, 20000)
 										y = 1
 									}
@@ -233,24 +247,35 @@ module.exports = {
 						else if(i.customId === 'save'){
 
 							//gibt uns mehr zeit (wie schon oben erwähnt in start)
-							await i.deferReply()
+							await i.reply(msg.server_single.other.wait)
 
 							//das muss leider bei jedem statement gemacht werden, weil sonst vielleicht der status sich ändert!
 							let host_port_is_open = await scan_for_port(gm_port)
 							
 							if(host_port_is_open === true){
 								connection.send(JSON.stringify({"command": "save"}))
-								function send_if_timeout(){
-									i.editReply({content: "Wir konnten deinen Server leider nicht erreichen, bitte versuche es nocheinmal. Falls das Problem besteht wende dich an @Sir Berg oder @Svenum!"})
+								async function send_if_timeout(){
+									i.editReply(msg.server_single.errors.timeout)
+									await sleep(10000)
+									i.deleteReply()
 								}
 								setTimeout(send_if_timeout, 30000)
 								//sendet sobald saved vom websocket zurück kommt eine nachricht
+
 								connection.on('message', async (message)=>{
 									if(message.toString().includes("Saved")){
-										clearTimeout(send_if_timeout())
-										i.editReply({content: "Dein Spiel wurde gesichert!"})
+										await revert_embed()
+										clearTimeout(send_if_timeout)
+										interaction.editReply({embeds: [embed]})
+										i.deleteReply()
 									}
 								})
+
+								//TODO: FIXME
+								//!außerdem handeld es den typ des spiels, da es der einzige command ist der nicht spielunabhängig funktioniert!
+								if(gm_Type.includes("craft")){
+								}
+								//TODO Terraria Support einfügen!
 							}
 							else{
 								i.editReply({content: "Dein Server ist anscheinend noch nicht gestartet, bitte starte ihn zuerst mit dem Start Button"})
@@ -262,7 +287,7 @@ module.exports = {
 						}
 
 						else if(i.customId === 'stop'){
-							await i.deferReply()
+							await i.reply(msg.server_single.other.wait)
 
 							//das muss leider bei jedem statement gemacht werden, weil sonst vielleicht der status sich ändert!
 							let host_port_is_open = await scan_for_port(port)
@@ -284,6 +309,10 @@ module.exports = {
 									}
 									else{	
 										i.editReply('Dein Server ist jetzt heruntergefahren')
+										await revert_embed()
+										interaction.editReply({embeds:[embed]})
+										await sleep(10000)
+										i.deleteReply()
 										if(timer){
 											clearTimeout(timer)
 										}
@@ -298,7 +327,7 @@ module.exports = {
 							}
 						}
 						else if (i.customId === 'restart'){
-							i.reply('Das könnte ein bisschen dauern, die Embed Nachricht oben wird geupdatet wenn dein Server neugestartet ist!')
+							i.reply(msg.server_single.other.wait_restart)
 							connection.send('{"command": "restart"}')
 							embed.setTitle('Dein Server wird Neugestartet, bitte hab etwas Geduld!')
 							embed.setURL('https://holypenguin.de')
@@ -318,6 +347,13 @@ module.exports = {
 								embed.setTitle('Controlls für: '+name)
 								interaction.editReply({embeds:[embed]})
 							}
+
+							async function send_if_timeout(){
+								i.editReply(msg.server_single.states.success)
+								await sleep(10000)
+								i.deleteReply()
+							}
+							setTimeout(send_if_timeout, 60000)
 							async function test_for_port(){
 								if(await scan_for_port(gm_port) === true){
 									
@@ -334,6 +370,7 @@ module.exports = {
 										i.deleteReply()
 										interaction.editReply({embeds: [embed], components: [button]})
 										setTimeout(update_message, 10000)
+										clearTimeout(send_if_timeout())
 										y = 1
 									}
 								}
@@ -352,6 +389,11 @@ module.exports = {
 							}
 							while(y === 0)
 							interaction.editReply({embeds: [embed]})
+							await sleep(10000)
+
+							//um die embed nachricht wieder zurück auf den alten status zu bringen
+							await revert_embed()
+							interaction.editReply({embeds: [embed]})
 						}	
 						else if(i.customId === 'status'){
 
@@ -361,8 +403,6 @@ module.exports = {
 							embed.setURL('https://holypenguin.de')
 							embed.setThumbnail('https://media.discordapp.net/attachments/768723694666121236/850382374859702302/Logo.png')
 							embed.setTimestamp()
-							
-							
 							
 							if(await scan_for_port(gm_port) === true){
 								embed.setDescription('Status: Online! 🟢 (Anmerkung: Du musst auf den Statusknopf drücken um eine Änderung zu sehen!)')
@@ -382,10 +422,10 @@ module.exports = {
 					embed.setTimestamp()
 
 					if(await scan_for_port(gm_port) === true){
-						embed.setDescription('Status: Online! 🟢 (Anmerkung: Du musst auf den Statusknopf drücken um eine Änderung zu sehen!)')
+						embed.setDescription('Status: Online! 🟢')
 					}
 					else{
-						embed.setDescription('Status: Offline! 🔴 (Anmerkung: Du musst auf den Statusknopf drücken um eine Änderung zu sehen!)')
+						embed.setDescription('Status: Offline! 🔴')
 					}
 
 					await interaction.reply({embeds: [embed], components: [button]})
@@ -394,7 +434,23 @@ module.exports = {
 
 			//falls es mehr als eins ist müssen wir mehrere buttons anzeigen und die anderen spiele aus der datenbank holen
 			else{
+				const button = new Discord.MessageActionRow().addComponents(
+					new Discord.MessageButton().setCustomId('start').setLabel('Start').setStyle('PRIMARY'),
+					new Discord.MessageButton().setCustomId('save').setLabel('Save').setStyle('PRIMARY'),
+					new Discord.MessageButton().setCustomId('stop').setLabel('Stop').setStyle('PRIMARY'),
+					new Discord.MessageButton().setCustomId('restart').setLabel('Restart').setStyle('PRIMARY')					
+				)
 
+				const button1 = new Discord.MessageActionRow().addComponents(
+					new Discord.MessageButton().setCustomId('start').setLabel('Start').setStyle('PRIMARY').setDisabled(true),
+					new Discord.MessageButton().setCustomId('save').setLabel('Save').setStyle('PRIMARY').setDisabled(true),
+					new Discord.MessageButton().setCustomId('stop').setLabel('Stop').setStyle('PRIMARY').setDisabled(true),
+					new Discord.MessageButton().setCustomId('restart').setLabel('Restart').setStyle('PRIMARY').setDisabled(true)				
+				)
+				/*
+				!TODO:Add multiple Gamescapability,
+				TODO: Add terminal command (optional)
+				*/
 			}
 		})
 	},
