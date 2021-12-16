@@ -2,7 +2,7 @@ const { time } = require('console');
 //setzt die constante discord für eigentlich alles in diesem file
 const Discord = require('discord.js');
 //die clientID des bots
-const clientID = '847351568843014185';
+const clientID = '';
 //die scopes mit denen sich der bot verbindet
 const scopes = ['rpc', 'rpc.api', 'message.read'];
 //der prefix mit dem jeder command beginnt
@@ -387,6 +387,5 @@ client.on('message', async message =>{
         client.commands.get('help_game').execute(message,args)}
 })
 
-//invitelink: https://discord.com/api/oauth2/authorize?client_id=847351568843014185&permissions=8&scope=bot
 //logt den Client ein
-client.login('ODQ3MzUxNTY4ODQzMDE0MTg1.YK8zpQ.XeO-yH8luna6s17aYh4gNoMpyec')
+client.login('')
